@@ -1,3 +1,7 @@
+import { Fragment } from "react";
+import { ChevronRight } from "lucide-react"
+import { useLoaderData, useNavigate } from "react-router-dom";
+
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -6,14 +10,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
-import { ChevronRight, Home } from "lucide-react"
 
-type DriveBreadcrumbsProps = {
-  currentPath: string[]
-  navigateToPath: (index: number) => void
-}
+import type { driveLoader } from "@/pages/Drive";
 
-export default function Breadcrumbs({ currentPath, navigateToPath }: DriveBreadcrumbsProps) {
+export default function Breadcrumbs() {
+  const navigate = useNavigate();
+  const { path } = useLoaderData<typeof driveLoader>();
+
   return (
     <div className="mb-6">
       <Breadcrumb>
@@ -23,41 +26,37 @@ export default function Breadcrumbs({ currentPath, navigateToPath }: DriveBreadc
               href="#"
               onClick={(e) => {
                 e.preventDefault()
-                navigateToPath(0)
+                navigate(`/drive/${path[0].id}`)
               }}
-              className="flex items-center gap-1"
             >
-              <Home className="w-4 h-4" />
-              {currentPath[0]}
+              {path[0].name}
             </BreadcrumbLink>
           </BreadcrumbItem>
-          {currentPath.slice(1).map((folder, index) => (
-            <div key={index} className="flex items-center">
+          {path.slice(1).map((folder, index) => (
+            <Fragment key={index} >
               <BreadcrumbSeparator>
                 <ChevronRight className="w-4 h-4" />
               </BreadcrumbSeparator>
               <BreadcrumbItem>
-                {index === currentPath.length - 2 ? (
-                  <BreadcrumbPage>{folder}</BreadcrumbPage>
+                {index === path.length - 2 ? (
+                  <BreadcrumbPage>{folder.name}</BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink
                     className="hover:text-blue-500"
                     href="#"
                     onClick={(e) => {
                       e.preventDefault()
-                      navigateToPath(index + 1)
+                      navigate(`/drive/${folder.id}`)
                     }}
                   >
-                    {folder}
+                    {folder.name}
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
-            </div>
+            </Fragment>
           ))}
         </BreadcrumbList>
       </Breadcrumb>
     </div>
   )
 }
-
-

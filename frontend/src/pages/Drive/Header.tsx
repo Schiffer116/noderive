@@ -1,3 +1,9 @@
+import { Plus, Upload, FolderPlus, Settings, HelpCircle, LogOut } from "lucide-react"
+import { generateUploadButton } from "@uploadthing/react";
+import { DialogClose } from "@radix-ui/react-dialog"
+import { useParams } from "react-router-dom"
+import { useState } from "react";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,24 +16,28 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Grid3X3, List, Search } from "lucide-react"
 import { Label } from "@/components/ui/label"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Plus, Upload, FolderPlus, Settings, HelpCircle, LogOut } from "lucide-react"
-import { useState } from "react"
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
-type DriverHeaderProps = {
-  viewMode: string
-  setViewMode: React.Dispatch<React.SetStateAction<"grid" | "list">>
-  searchQuery: string
-  setSearchQuery: React.Dispatch<React.SetStateAction<string>>
-}
+import { useDriveContext } from "@/context/DriveContext";
+import { useChildren } from "@/hooks/useChildren"
 
-export default function Header({
-  viewMode,
-  setViewMode,
-  searchQuery,
-  setSearchQuery,
-}: DriverHeaderProps) {
+export const UploadButton = generateUploadButton({
+  url: "http://localhost:3000/api/uploadthing",
+});
+
+export default function Header() {
+  const parent = useParams<{ id: string }>().id!;
   const [newFolderName, setNewFolderName] = useState("")
+  const {
+    searchQuery,
+    setSearchQuery,
+    viewMode,
+    setViewMode,
+  } = useDriveContext()
+
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const { createDirectory } = useChildren();
+
   return (
     <header className="border-b px-6 py-3 flex items-center gap-4">
       <div className="flex items-center gap-2">
@@ -45,34 +55,10 @@ export default function Header({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-48">
-          <Dialog>
-            <DialogTrigger asChild>
-              <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                <FolderPlus className="w-4 h-4 mr-2" />
-                New folder
-              </DropdownMenuItem>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Create new folder</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="folder-name">Folder name</Label>
-                  <Input
-                    id="folder-name"
-                    value={newFolderName}
-                    onChange={(e) => setNewFolderName(e.target.value)}
-                    placeholder="Untitled folder"
-                  />
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button variant="outline">Cancel</Button>
-                  <Button>Create</Button>
-                </div>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <DropdownMenuItem onSelect={() => setDialogOpen(true)}>
+            <FolderPlus className="w-4 h-4 mr-2" />
+            New folder
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem>
             <Upload className="w-4 h-4 mr-2" />
@@ -84,6 +70,36 @@ export default function Header({
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
+
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create new folder</DialogTitle>
+          </DialogHeader>
+          <form className="space-y-4" onSubmit={(e) => {
+            e.preventDefault()
+            createDirectory({ name: newFolderName, parent })}
+          }>
+            <div>
+              <Label htmlFor="folder-name" className="mb-2">Folder name</Label>
+              <Input
+                id="folder-name"
+                value={newFolderName}
+                onChange={(e) => setNewFolderName(e.target.value)}
+                placeholder="Untitled folder"
+              />
+            </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <div className="flex justify-end gap-2">
+                  <Button type="button" variant="outline">Cancel</Button>
+                  <Button type="submit">Create</Button>
+                </div>
+              </DialogClose>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       <div className="flex-1 max-w-2xl">
         <div className="relative">
