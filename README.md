@@ -13,7 +13,6 @@ Minimal google drive clone
 - [x] Add rename directory
 - [x] Add share
 - [x] Add rename file
-- [ ] Add download file
-- [ ] Add upload file
+- [ ] Really try uploadthing
 - [ ] Add rename file
 - [ ] Add auth

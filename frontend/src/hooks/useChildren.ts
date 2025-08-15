@@ -2,7 +2,8 @@ import axios from "axios";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLoaderData, useParams } from "react-router-dom";
 
-import { driveLoader, fetchChildren, type DriveItem } from "@/pages/Drive";
+import { driveLoader, } from "@/pages/Drive";
+import { fetchChildren, type DriveItem } from "@/api";
 
 const API_URL = import.meta.env.VITE_BACKEND_URL;
 const DIR_URL = new URL("directory", API_URL).href

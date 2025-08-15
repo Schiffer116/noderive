@@ -1,4 +1,3 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
 import { account, directory, drive, file } from './schema';
 import { randomUUID } from 'crypto';
 

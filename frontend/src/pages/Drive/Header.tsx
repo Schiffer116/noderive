@@ -1,8 +1,7 @@
-import { Plus, Upload, FolderPlus, Settings, HelpCircle, LogOut } from "lucide-react"
-import { generateUploadButton } from "@uploadthing/react";
-import { DialogClose } from "@radix-ui/react-dialog"
+import { Plus, FolderPlus, Settings, HelpCircle, LogOut, Upload } from "lucide-react"
 import { useParams } from "react-router-dom"
-import { useState } from "react";
+import { useState, useRef } from "react";
+import { generateReactHelpers } from "@uploadthing/react";
 
 import {
   DropdownMenu,
@@ -16,30 +15,50 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Grid3X3, List, Search } from "lucide-react"
 import { Label } from "@/components/ui/label"
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Toaster } from "@/components/ui/sonner"
+import { toast } from "sonner"
 
 import { useDriveContext } from "@/context/DriveContext";
 import { useChildren } from "@/hooks/useChildren"
 
-export const UploadButton = generateUploadButton({
-  url: "http://localhost:3000/api/uploadthing",
-});
-
 export default function Header() {
   const parent = useParams<{ id: string }>().id!;
   const [newFolderName, setNewFolderName] = useState("")
+  const [newFolderDialogOpen, setNewFolderDialogOpen] = useState(false)
+
+  const { useUploadThing } = generateReactHelpers({ url: "http://localhost:3000/api/uploadthing" });
+  const { startUpload } = useUploadThing("imageUploader");
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const handleUpload = () => {
+    const files = fileInputRef.current?.files;
+    if (files === null || files == undefined) return;
+
+    toast.promise(startUpload([files[0]], { parent }), {
+      loading: 'uploading...',
+      success: 'uploaded successfully!',
+      error: 'error occurred while uploading',
+    });
+  }
+
   const {
     searchQuery,
     setSearchQuery,
     viewMode,
     setViewMode,
   } = useDriveContext()
-
-  const [dialogOpen, setDialogOpen] = useState(false)
   const { createDirectory } = useChildren();
 
   return (
     <header className="border-b px-6 py-3 flex items-center gap-4">
+      <Toaster />
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleUpload}
+        style={{ display: "none" }}
+      />
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
           <span className="text-white font-bold text-sm">N</span>
@@ -55,12 +74,12 @@ export default function Header() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-48">
-          <DropdownMenuItem onSelect={() => setDialogOpen(true)}>
+          <DropdownMenuItem onSelect={() => setNewFolderDialogOpen(true)}>
             <FolderPlus className="w-4 h-4 mr-2" />
             New folder
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => { fileInputRef.current?.click() }}>
             <Upload className="w-4 h-4 mr-2" />
             File upload
           </DropdownMenuItem>
@@ -71,7 +90,7 @@ export default function Header() {
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+      <Dialog open={newFolderDialogOpen} onOpenChange={setNewFolderDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Create new folder</DialogTitle>
