@@ -16,6 +16,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const distPath = path.join(__dirname, "../client/dist");
+const port = process.env.PORT || 3000
 
 const app = express();
 
@@ -34,6 +35,6 @@ app.use((_, res) => {
   res.sendFile(path.join(distPath, "index.html"));
 });
 
-app.listen(3000, () => {
+app.listen(port, () => {
   console.log("Server running on http://localhost:3000");
 });
