@@ -1,7 +1,6 @@
 import { z } from "zod";
 import axios from "axios";
-
-const API_URL = import.meta.env.VITE_BACKEND_URL;
+import { API_URL } from "@/constants";
 
 const DirectorySchema = z.object({
   id: z.uuid(),

@@ -10,7 +10,7 @@
     "build": "pnpm ui:build && pnpm api:build",
 
     "ui:build": "pnpm --dir ./client build",
-    "api:build": "tsc",
+    "api:build": "pnpm tsc",
 
     "db:init": "docker run --env-file .env -p 5432:5432 postgres:17",
     "db:seed": "npx drizzle-kit push && npx tsx --env-file .env src/db/seed.ts"

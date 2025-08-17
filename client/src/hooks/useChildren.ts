@@ -4,8 +4,8 @@ import { useLoaderData, useParams } from "react-router-dom";
 
 import { driveLoader, } from "@/pages/Drive";
 import { fetchChildren, type DriveItem } from "@/api";
+import { API_URL } from "@/constants";
 
-const API_URL = import.meta.env.VITE_BACKEND_URL;
 const DIR_URL = new URL("directory", API_URL).href
 const FILE_URL = new URL("file", API_URL).href
 
