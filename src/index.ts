@@ -35,6 +35,6 @@ app.use((_, res) => {
   res.sendFile(path.join(distPath, "index.html"));
 });
 
-app.listen(port, () => {
-  console.log("Server running on http://localhost:3000");
+app.listen(Number(port), "0.0.0.0", () => {
+    console.log(`Server running on port ${port}`);
 });
