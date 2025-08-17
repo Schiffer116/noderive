@@ -21,14 +21,20 @@ import { toast } from "sonner"
 
 import { useDriveContext } from "@/context/DriveContext";
 import { useChildren } from "@/hooks/useChildren"
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function Header() {
+  const queryClient = useQueryClient();
   const parent = useParams<{ id: string }>().id!;
   const [newFolderName, setNewFolderName] = useState("")
   const [newFolderDialogOpen, setNewFolderDialogOpen] = useState(false)
 
   const { useUploadThing } = generateReactHelpers({ url: "/api/uploadthing" });
-  const { startUpload } = useUploadThing("imageUploader");
+  const { startUpload } = useUploadThing("imageUploader", {
+    onClientUploadComplete: _ => {
+      queryClient.invalidateQueries({ queryKey: ["children"] })
+    }
+  });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const handleUpload = () => {
