@@ -20,11 +20,11 @@ export type DriveItem = z.infer<typeof DirectorySchema> | z.infer<typeof FileSch
 export async function fetchChildren(id: string) {
   const uris = ["directory", "file"]
   const urls = uris
-    .map(uri => new URL(uri, API_URL).href + "/")
+    .map(uri => API_URL + uri)
 
   const [rawDirectories, rawFiles] = await Promise.all(
     urls.map(async (url, idx) => {
-      const data = (await axios(new URL(id, url).href)).data
+      const data = (await axios(url + "/" + id)).data
       return data.map((item: any) => ({ ...item, type: uris[idx] }))
     })
   );
@@ -41,8 +41,8 @@ const PathSchema = z.array(z.object({
 }))
 
 export async function fetchPath(id: string) {
-  const url = new URL("path/", API_URL).href
-  const rawPath = await fetch(new URL(id, url).href).then(res => res.json())
+  const url = API_URL + "path/" + id
+  const rawPath = await fetch(url).then(res => res.json())
   const path = PathSchema.parse(rawPath);
   return path
 }

@@ -6,8 +6,8 @@ import { driveLoader, } from "@/pages/Drive";
 import { fetchChildren, type DriveItem } from "@/api";
 import { API_URL } from "@/constants";
 
-const DIR_URL = new URL("directory", API_URL).href
-const FILE_URL = new URL("file", API_URL).href
+const DIR_URL = API_URL + "directory"
+const FILE_URL = API_URL + "file"
 
 export function useChildren() {
   const id = useParams<{ id: string }>().id!;
