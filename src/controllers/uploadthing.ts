@@ -18,9 +18,13 @@ export const uploadRouter = {
     },
   })
   .input(z.object({ parent: z.string() }))
-  .onUploadComplete(({ metadata, file,  }: any) => {
-    console.log("AHAHAHAHAHAHAHAHAHAHA");
-    const { parent } = metadata!;
+  .middleware(async ({ input }) => {
+    return { parent: input };
+  })
+  .onUploadComplete(({ metadata, file }: any) => {
+    console.log("metadata: ", metadata);
+    console.log("file: ", file);
+    const { parent } = metadata;
     insertFile(file.name, parent, file.ufsUrl);
   })
 } satisfies FileRouter;
