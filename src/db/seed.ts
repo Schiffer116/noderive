@@ -1,9 +1,12 @@
-import { account, directory, drive, file } from './schema';
+import { account, directory, drive, file } from './schema.js';
 import { randomUUID } from 'crypto';
+import { reset } from "drizzle-seed";
 
-import db from './db';
+import db from './db.js';
+import * as schema from './schema.js';
 
 const main = async () => {
+  await reset(db, schema);
   const [user] = await db.insert(account)
     .values({ name: 'Alice' })
     .returning();

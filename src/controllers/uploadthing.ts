@@ -1,8 +1,8 @@
 import { createUploadthing, type FileRouter } from "uploadthing/express";
 import { z } from "zod";
 
-import db from '../db/db.ts';
-import { file } from '../db/schema.ts';
+import db from '../db/db.js';
+import { file } from '../db/schema.js';
 
 const f = createUploadthing();
 
@@ -18,7 +18,7 @@ export const uploadRouter = {
     },
   })
   .input(z.object({ parent: z.string() }))
-  .onUploadComplete(({ metadata, file,  }) => {
+  .onUploadComplete(({ metadata, file,  }: any) => {
     console.log("AHAHAHAHAHAHAHAHAHAHA");
     const { parent } = metadata!;
     insertFile(file.name, parent, file.ufsUrl);

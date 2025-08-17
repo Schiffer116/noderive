@@ -5,8 +5,13 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "node ./src/index.ts",
+    "start": "pnpm build && node dist/index.js",
     "dev": "node --experimental-strip-types --env-file .env --watch src/index.ts",
+    "build": "pnpm ui:build && pnpm api:build",
+
+    "ui:build": "pnpm --dir ./client build",
+    "api:build": "tsc",
+
     "db:init": "docker run --env-file .env -p 5432:5432 postgres:17",
     "db:seed": "npx drizzle-kit push && npx tsx --env-file .env src/db/seed.ts"
   },
@@ -28,7 +33,7 @@
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
-    "drizzle-kit": "^0.31.4",
-    "tsx": "^4.20.3"
+    "@types/morgan": "^1.9.10",
+    "drizzle-kit": "^0.31.4"
   }
 }

@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import { eq } from 'drizzle-orm';
 
-import db from '../db/db.ts';
-import { file } from '../db/schema.ts';
+import db from '../db/db.js';
+import { file } from '../db/schema.js';
 
 const router = Router();
 
@@ -30,7 +30,7 @@ router.patch("/file", async (req, res) => {
     const { id, name } = req.body;
     renameFile(id, name);
     res.status(200).json({ message: 'Directory updated' });
-  } catch (e) {
+  } catch (e: any) {
     res.status(400).json({ error: e.message });
     return;
   }
