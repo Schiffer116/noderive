@@ -27,7 +27,7 @@ export default function Header() {
   const [newFolderName, setNewFolderName] = useState("")
   const [newFolderDialogOpen, setNewFolderDialogOpen] = useState(false)
 
-  const { useUploadThing } = generateReactHelpers({ url: "http://localhost:3000/api/uploadthing" });
+  const { useUploadThing } = generateReactHelpers({ url: "/api/uploadthing" });
   const { startUpload } = useUploadThing("imageUploader");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
