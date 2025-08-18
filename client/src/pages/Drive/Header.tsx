@@ -46,7 +46,6 @@ export default function Header() {
 
     setMaxFileCount(routeConfig.blob!.maxFileCount);
     setRawMaxFileSize(routeConfig.blob!.maxFileSize);
-
   }, [routeConfig])
 
   const handleUpload = useCallback(() => {
@@ -85,7 +84,7 @@ export default function Header() {
       <input
         type="file"
         ref={fileInputRef}
-        onChange={handleUpload ?? (() => {})}
+        onChange={handleUpload}
         style={{ display: "none" }}
         multiple
       />

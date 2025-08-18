@@ -46,7 +46,6 @@ export function FileMenuContent(props: FileMenuContentProps) {
     URL.revokeObjectURL(link.href);
   }
 
-
   return (
     <>
       <ContentComponent>
