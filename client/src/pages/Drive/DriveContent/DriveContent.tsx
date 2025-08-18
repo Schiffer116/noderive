@@ -1,6 +1,6 @@
 import { FileText, Folder, MoreVertical } from "lucide-react"
 import { useNavigate } from "react-router-dom"
-import { useMemo } from "react"
+import { useCallback, useMemo } from "react"
 
 import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu"
 import { Button } from "@/components/ui/button"
@@ -35,6 +35,10 @@ export default function DriveContent() {
     )
   }, [children, searchQuery]);
 
+  const toLocaleDate = useCallback((date: string) =>
+    new Date(date).toLocaleDateString()
+  , []);
+
   return (
     <>
       {viewMode === "grid" ? (
@@ -60,10 +64,8 @@ export default function DriveContent() {
                       <p className="text-sm font-medium truncate" title={child.name}>
                         {child.name}
                       </p>
-                      {/*
-                        <p className="text-xs text-muted-foreground">{file.modified}</p>
-                        {file.size && <p className="text-xs text-muted-foreground">{file.size}</p>}
-                        */}
+                      <p className="text-xs text-muted-foreground">{ toLocaleDate(child.createdAt) }</p>
+                      <p className="text-xs text-muted-foreground">{ child.type === "file" ? child.size : "--" }</p>
                     </div>
                   </div>
                   <DropdownMenu>
@@ -96,7 +98,7 @@ export default function DriveContent() {
           <div className="space-y-1">
             <div className="grid grid-cols-12 gap-4 px-4 py-2 text-sm font-medium text-muted-foreground border-b">
               <div className="col-span-6">Name</div>
-              <div className="col-span-2">Modified</div>
+              <div className="col-span-2">Created at</div>
               <div className="col-span-2">Size</div>
               <div className="col-span-2"></div>
             </div>
@@ -117,9 +119,11 @@ export default function DriveContent() {
                       {getFileIcon(child.type)}
                       <span className="font-medium">{child.name}</span>
                     </div>
-                    <div className="col-span-2 flex items-center text-sm text-muted-foreground">{123}</div>
                     <div className="col-span-2 flex items-center text-sm text-muted-foreground">
-                      {123}
+                      { toLocaleDate(child.createdAt) }
+                    </div>
+                    <div className="col-span-2 flex items-center text-sm text-muted-foreground">
+                      { child.type === "file" ? child.size : "--" }
                     </div>
                     <div className="col-span-2 flex items-center justify-end">
                       <DropdownMenu>

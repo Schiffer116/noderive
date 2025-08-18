@@ -5,6 +5,7 @@ import { API_URL } from "@/constants";
 const DirectorySchema = z.object({
   id: z.uuid(),
   name: z.string(),
+  createdAt: z.string(),
   type: z.literal("directory"),
 });
 
@@ -12,6 +13,8 @@ const FileSchema = z.object({
   id: z.number(),
   name: z.string(),
   key: z.string(),
+  size: z.number(),
+  createdAt: z.string(),
   type: z.literal("file"),
 });
 

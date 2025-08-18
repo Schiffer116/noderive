@@ -12,6 +12,7 @@ router.get('/directory/:directoryUUID', async (req, res) => {
   const children = await db.select({
     id: directory.id,
     name: directory.name,
+    createdAt: directory.createdAt,
   })
     .from(directory)
     .where(eq(directory.parent, uuid));

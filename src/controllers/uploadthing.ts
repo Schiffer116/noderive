@@ -7,8 +7,13 @@ import { file } from '../db/schema.js';
 
 const f = createUploadthing();
 
-async function insertFile(name: string, parent: string, key: string) {
-  await db.insert(file).values({ name, key, parent })
+async function insertFile(
+  name: string,
+  parent: string,
+  key: string,
+  size: number
+) {
+  await db.insert(file).values({ name, key, size, parent })
 }
 
 export const uploadRouter = {
@@ -24,7 +29,7 @@ export const uploadRouter = {
   })
   .onUploadComplete(({ metadata, file }: any) => {
     const { parent } = metadata;
-    insertFile(file.name, parent, file.key);
+    insertFile(file.name, parent, file.key, file.size);
   })
 } satisfies FileRouter;
 

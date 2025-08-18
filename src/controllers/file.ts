@@ -12,7 +12,9 @@ router.get('/file/:directoryUUID', async (req, res) => {
   const files = await db.select({
       id: file.id,
       name: file.name,
-      key: file.key
+      key: file.key,
+      size: file.size,
+      createdAt: file.createdAt,
     })
     .from(file)
     .where(eq(file.parent, uuid));

@@ -11,7 +11,7 @@ const main = async () => {
     .values({ name: 'Alice' })
     .returning();
 
-  const rootId = randomUUID();
+  const rootId = "26fa4c76-28c6-489b-90cf-6b10f31a34cd";
   await db.insert(directory).values({
     id: rootId,
     name: 'Alice Drive',
@@ -36,11 +36,13 @@ const main = async () => {
       name: 'lion.jpeg',
       key: 'KnfNP1qD3yiEHab8oJCucxjQW0OGvIReqHXP25sLYrktynM1',
       parent: rootId,
+      size: 1024,
     },
     {
       name: 'cat.jpg',
       key: 'KnfNP1qD3yiEpacTdLOWO5JGB4AVnIKdHuMPrUSFws6iCbcek',
       parent: rootId,
+      size: 1024,
     },
   ]);
 

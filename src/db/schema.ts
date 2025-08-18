@@ -4,6 +4,7 @@ import {
   serial,
   text,
   integer,
+  timestamp,
   type AnyPgColumn,
 } from 'drizzle-orm/pg-core';
 
@@ -15,6 +16,7 @@ export const account = pgTable('account', {
 export const directory = pgTable('directory', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: text('name').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
   parent: uuid('parent')
     .references((): AnyPgColumn => directory.id, { onDelete: 'cascade' }),
 });
@@ -23,6 +25,8 @@ export const file = pgTable('file', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
   key: text('key').notNull(),
+  size: integer('size').notNull(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
   parent: uuid('parent')
     .notNull()
     .references(() => directory.id, { onDelete: 'cascade' }),
