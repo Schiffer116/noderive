@@ -71,7 +71,7 @@ export default function Header() {
       success: 'uploaded successfully!',
       error: 'error occurred while uploading',
     });
-  }, [maxFileCount, rawMaxFileSize])
+  }, [maxFileCount, rawMaxFileSize, parent])
 
   const {
     searchQuery,
