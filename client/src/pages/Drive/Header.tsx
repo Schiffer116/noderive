@@ -16,7 +16,6 @@ import { Input } from "@/components/ui/input"
 import { Grid3X3, List, Search } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Toaster } from "@/components/ui/sonner"
 import { toast } from "sonner"
 
 import { useDriveContext } from "@/context/DriveContext";
@@ -83,7 +82,6 @@ export default function Header() {
 
   return (
     <header className="border-b px-6 py-3 flex items-center gap-4">
-      <Toaster />
       <input
         type="file"
         ref={fileInputRef}

@@ -6,6 +6,7 @@ import Breadcrumbs from "@/pages/Drive/Breadcrumbs"
 import DriveContent from "@/pages/Drive/DriveContent"
 import { DriveContext, type DriveContextType, type ViewMode } from "@/context/DriveContext";
 import { fetchChildren, fetchPath } from "@/api";
+import { Toaster } from "@/components/ui/sonner";
 
 export async function driveLoader({ params }: LoaderFunctionArgs) {
   const [children, path] = await Promise.all([
@@ -40,6 +41,7 @@ export default function Drive() {
   return (
     <DriveContext.Provider value={contextValue}>
       <div className="h-screen bg-background flex flex-col">
+        <Toaster />
         <Header />
         <main className="flex-1 p-6">
           <Breadcrumbs />

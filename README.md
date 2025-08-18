@@ -17,5 +17,6 @@ Minimal google drive clone
 - [x] Add delete file
 - [x] Add batch file upload
 - [x] Add file download
+- [x] Toast file delete
 - [ ] Add recursive directory delete
 - [ ] Add auth

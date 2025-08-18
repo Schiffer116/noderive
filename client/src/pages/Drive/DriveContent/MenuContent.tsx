@@ -8,6 +8,7 @@ import { useState } from "react"
 import { useChildren } from "@/hooks/useChildren"
 import { DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { getFileURL } from "@/utils"
+import { toast } from "sonner"
 
 type FileMenuContentProps = {
   id: number,
@@ -61,7 +62,13 @@ export function FileMenuContent(props: FileMenuContentProps) {
           <Edit className="w-4 h-4 mr-2" />
           Rename
         </ItemComponent>
-        <ItemComponent className="text-destructive" onSelect={() => deleteFile({ id, key: fileKey })}>
+        <ItemComponent className="text-destructive" onSelect={() => {
+          toast.promise(async () => deleteFile({ id, key: fileKey }), {
+            loading: `deleting ${name}...`,
+            success: 'deleted successfully!',
+            error: `error occurred while deleting ${name}`,
+          });
+        }}>
           <Trash2 className="w-4 h-4 mr-2" />
           Delete
         </ItemComponent>
