@@ -14,8 +14,8 @@ Minimal google drive clone
 - [x] Add share
 - [x] Add rename file
 - [x] Really try uploadthing
-- [ ] Add delete file
-- [ ] Add batch file upload
-- [ ] Add file download
+- [x] Add delete file
+- [x] Add batch file upload
+- [x] Add file download
 - [ ] Add recursive directory delete
 - [ ] Add auth

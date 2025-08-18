@@ -12,10 +12,10 @@ async function insertFile(name: string, parent: string, key: string) {
 }
 
 export const uploadRouter = {
-  imageUploader: f({
-    image: {
+  fileUploader: f({
+    blob: {
       maxFileSize: "4MB",
-      maxFileCount: 1,
+      maxFileCount: 5,
     },
   })
   .input(z.object({ parent: z.string() }))

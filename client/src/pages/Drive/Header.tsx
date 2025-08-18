@@ -1,6 +1,6 @@
 import { Plus, FolderPlus, Settings, HelpCircle, LogOut, Upload } from "lucide-react"
 import { useParams } from "react-router-dom"
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { generateReactHelpers } from "@uploadthing/react";
 
 import {
@@ -22,31 +22,56 @@ import { toast } from "sonner"
 import { useDriveContext } from "@/context/DriveContext";
 import { useChildren } from "@/hooks/useChildren"
 import { useQueryClient } from "@tanstack/react-query";
+import { parseFileSize } from "@/utils";
 
 export default function Header() {
   const queryClient = useQueryClient();
   const parent = useParams<{ id: string }>().id!;
   const [newFolderName, setNewFolderName] = useState("")
   const [newFolderDialogOpen, setNewFolderDialogOpen] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [maxFileCount, setMaxFileCount] = useState(1);
+  const [rawMaxFileSize, setRawMaxFileSize] = useState("0B");
 
   const { useUploadThing } = generateReactHelpers({ url: "/api/uploadthing" });
-  const { startUpload } = useUploadThing("imageUploader", {
+  const { startUpload, routeConfig } = useUploadThing("fileUploader", {
     onClientUploadComplete: _ => {
       queryClient.invalidateQueries({ queryKey: ["children"] })
     }
   });
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const handleUpload = () => {
+  useEffect(() => {
+    if (!routeConfig) {
+      return
+    }
+
+    setMaxFileCount(routeConfig.blob!.maxFileCount);
+    setRawMaxFileSize(routeConfig.blob!.maxFileSize);
+
+  }, [routeConfig])
+
+  const handleUpload = useCallback(() => {
     const files = fileInputRef.current?.files;
     if (files === null || files == undefined) return;
 
-    toast.promise(startUpload([files[0]], { parent }), {
+    if (files.length > maxFileCount) {
+      toast.error("You can only upload at most 5 files at a time")
+      return
+    }
+
+    for (const file of files) {
+      if (file.size > parseFileSize(rawMaxFileSize)) {
+        toast.error(`File ${file.name} size exceeds the limit of ${rawMaxFileSize}`)
+        return
+      }
+    }
+
+    toast.promise(startUpload(Array.from(files), { parent }), {
       loading: 'uploading...',
       success: 'uploaded successfully!',
       error: 'error occurred while uploading',
     });
-  }
+  }, [maxFileCount, rawMaxFileSize])
 
   const {
     searchQuery,
@@ -62,8 +87,9 @@ export default function Header() {
       <input
         type="file"
         ref={fileInputRef}
-        onChange={handleUpload}
+        onChange={handleUpload ?? (() => {})}
         style={{ display: "none" }}
+        multiple
       />
       <div className="flex items-center gap-2">
         <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
@@ -84,15 +110,13 @@ export default function Header() {
             <FolderPlus className="w-4 h-4 mr-2" />
             New folder
           </DropdownMenuItem>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => { fileInputRef.current?.click() }}>
-            <Upload className="w-4 h-4 mr-2" />
-            File upload
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <FolderPlus className="w-4 h-4 mr-2" />
-            Folder upload
-          </DropdownMenuItem>
+          {
+            routeConfig != undefined &&
+              <DropdownMenuItem onSelect={() => { fileInputRef.current?.click() }}>
+                <Upload className="w-4 h-4 mr-2" />
+                File upload
+              </DropdownMenuItem>
+          }
         </DropdownMenuContent>
       </DropdownMenu>
 

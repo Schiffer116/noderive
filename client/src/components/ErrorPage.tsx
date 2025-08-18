@@ -3,13 +3,12 @@ import { useRouteError, isRouteErrorResponse } from "react-router-dom";
 export default function MyErrorPage() {
   const error = useRouteError();
 
-  console.error("Route error:", error); // <-- logs full object, often includes stack
+  console.error("Route error:", error);
 
   if (isRouteErrorResponse(error)) {
     return <h1>Error {error.status}: {error.statusText}</h1>;
   }
 
-  // fallback
   const message = error instanceof Error ? error.message : JSON.stringify(error);
 
   return (

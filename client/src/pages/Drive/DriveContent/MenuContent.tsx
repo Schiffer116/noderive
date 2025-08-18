@@ -31,10 +31,25 @@ export function FileMenuContent(props: FileMenuContentProps) {
     ItemComponent = DropdownMenuItem;
   }
 
+  async function downloadFile(fileUrl: string, filename: string) {
+    const response = await fetch(fileUrl);
+    const blob = await response.blob();
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(link.href);
+  }
+
+
   return (
     <>
       <ContentComponent>
-        <ItemComponent>
+        <ItemComponent onSelect={() => downloadFile(getFileURL(fileKey), name)}>
           <Download className="w-4 h-4 mr-2" />
           Download
         </ItemComponent>
