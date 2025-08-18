@@ -24,17 +24,17 @@ export function useChildren() {
     queryClient.invalidateQueries({ queryKey: ["children"] })
   }
 
-  const createMutation = useMutation({
+  const createDirectoryMutation = useMutation({
     mutationFn: createDirectory,
     onSuccess: invalidateChidren,
   })
 
-  const deleteMutation = useMutation({
+  const deleteDirectoryMutation = useMutation({
     mutationFn: deleteDirectory,
     onSuccess: invalidateChidren,
   })
 
-  const renameMutation = useMutation({
+  const renameDirectoryMutation = useMutation({
     mutationFn: renameDirectory,
     onSuccess: invalidateChidren,
   })
@@ -44,12 +44,19 @@ export function useChildren() {
     onSuccess: invalidateChidren,
   })
 
+  const deleteFileMutation = useMutation({
+    mutationFn: deleteFile,
+    onSuccess: invalidateChidren,
+  })
+
+
   return {
     children: data,
-    createDirectory: createMutation.mutate,
-    deleteDirectory: deleteMutation.mutate,
-    renameDirectory: renameMutation.mutate,
+    createDirectory: createDirectoryMutation.mutate,
+    deleteDirectory: deleteDirectoryMutation.mutate,
+    renameDirectory: renameDirectoryMutation.mutate,
     renameFile: renameFileMutation.mutate,
+    deleteFile: deleteFileMutation.mutate,
   }
 }
 
@@ -75,5 +82,12 @@ function renameDirectory({ id, name }: { id: string, name: string }) {
 function renameFile({ id, name }: { id: number, name: string }) {
   return axios.patch(FILE_URL, { id, name }, {
     headers: { "Content-Type": "application/json", },
+  });
+}
+
+function deleteFile({ id, key }: { id: number, key: string }) {
+  return axios.delete(FILE_URL, {
+    headers: { "Content-Type": "application/json", },
+    data: { id, key }
   });
 }

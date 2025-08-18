@@ -7,19 +7,20 @@ import { Download, Edit, Trash2, Link } from "lucide-react"
 import { useState } from "react"
 import { useChildren } from "@/hooks/useChildren"
 import { DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
+import { getFileURL } from "@/utils"
 
 type FileMenuContentProps = {
   id: number,
   name: string,
-  url: string,
+  fileKey: string,
   variant: "context" | "dropdown"
 }
 
 export function FileMenuContent(props: FileMenuContentProps) {
-  const { id, name, url, variant } = props;
+  const { id, name, fileKey, variant } = props;
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const { renameFile } = useChildren();
+  const { renameFile, deleteFile } = useChildren();
 
   let ContentComponent, ItemComponent;
   if (variant === "context") {
@@ -33,18 +34,11 @@ export function FileMenuContent(props: FileMenuContentProps) {
   return (
     <>
       <ContentComponent>
-        <ItemComponent onSelect={() => {
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = name;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-        }}>
+        <ItemComponent>
           <Download className="w-4 h-4 mr-2" />
           Download
         </ItemComponent>
-        <ItemComponent onSelect={() => navigator.clipboard.writeText(url)}>
+        <ItemComponent onSelect={() => navigator.clipboard.writeText(getFileURL(fileKey))}>
           <Link className="w-4 h-4 mr-2" />
           Copy link
         </ItemComponent>
@@ -52,7 +46,7 @@ export function FileMenuContent(props: FileMenuContentProps) {
           <Edit className="w-4 h-4 mr-2" />
           Rename
         </ItemComponent>
-        <ItemComponent className="text-destructive">
+        <ItemComponent className="text-destructive" onSelect={() => deleteFile({ id, key: fileKey })}>
           <Trash2 className="w-4 h-4 mr-2" />
           Delete
         </ItemComponent>

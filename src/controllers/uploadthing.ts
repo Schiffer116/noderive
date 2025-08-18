@@ -1,13 +1,14 @@
 import { createUploadthing, type FileRouter } from "uploadthing/express";
 import { z } from "zod";
+import { UTApi } from "uploadthing/server";
 
 import db from '../db/db.js';
 import { file } from '../db/schema.js';
 
 const f = createUploadthing();
 
-async function insertFile(name: string, parent: string, url: string) {
-  await db.insert(file).values({ name, url, parent })
+async function insertFile(name: string, parent: string, key: string) {
+  await db.insert(file).values({ name, key, parent })
 }
 
 export const uploadRouter = {
@@ -23,9 +24,9 @@ export const uploadRouter = {
   })
   .onUploadComplete(({ metadata, file }: any) => {
     const { parent } = metadata;
-    console.log(file.name, parent, file.ufsUrl);
-    insertFile(file.name, parent, file.ufsUrl);
+    insertFile(file.name, parent, file.key);
   })
 } satisfies FileRouter;
 
-export type OurFileRouter = typeof uploadRouter;
+export const utapi = new UTApi({});
+

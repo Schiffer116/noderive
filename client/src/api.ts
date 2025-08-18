@@ -11,7 +11,7 @@ const DirectorySchema = z.object({
 const FileSchema = z.object({
   id: z.number(),
   name: z.string(),
-  url: z.url(),
+  key: z.string(),
   type: z.literal("file"),
 });
 

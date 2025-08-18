@@ -34,12 +34,12 @@ const main = async () => {
   await db.insert(file).values([
     {
       name: 'lion.jpeg',
-      url: 'https://images.squarespace-cdn.com/content/v1/5b061f0e0dbda31446baccc0/1527893082224-1QNG73UB18IXT2MF3XNV/image-asset.jpeg?format=2500w',
+      key: 'KnfNP1qD3yiEHab8oJCucxjQW0OGvIReqHXP25sLYrktynM1',
       parent: rootId,
     },
     {
       name: 'cat.jpg',
-      url: 'https://www.rover.com/blog/wp-content/uploads/2020/10/Domestic_Shorthair-1024x576.jpg',
+      key: 'KnfNP1qD3yiEpacTdLOWO5JGB4AVnIKdHuMPrUSFws6iCbcek',
       parent: rootId,
     },
   ]);

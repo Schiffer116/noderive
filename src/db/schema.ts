@@ -22,8 +22,8 @@ export const directory = pgTable('directory', {
 export const file = pgTable('file', {
   id: serial('id').primaryKey(),
   name: text('name').notNull(),
-  url: text('url').notNull(),
-  parent: uuid('directory')
+  key: text('key').notNull(),
+  parent: uuid('parent')
     .notNull()
     .references(() => directory.id, { onDelete: 'cascade' }),
 });

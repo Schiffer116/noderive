@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/button"
 
 import { useDriveContext } from "@/context/DriveContext"
 import { FileMenuContent, DirectoryMenuContent } from "./MenuContent"
-import {  useChildren } from "@/hooks/useChildren"
+import { useChildren } from "@/hooks/useChildren"
 import { DropdownMenu } from "@/components/ui/dropdown-menu"
 import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu"
+
+import { getFileURL } from "@/utils"
 
 function getFileIcon(type: string) {
   switch (type) {
@@ -46,7 +48,7 @@ export default function DriveContent() {
                     if (child.type === "directory") {
                       navigate(`/drive/${child.id}`)
                     } else if (child.type === "file") {
-                      window.open(child.url)
+                      window.open(getFileURL(child.key))
                     }
                   }}
                 >
@@ -77,7 +79,7 @@ export default function DriveContent() {
                     {
                       child.type === "directory"
                         ? <DirectoryMenuContent id={child.id} name={child.name} variant="dropdown" />
-                        : <FileMenuContent id={child.id} name={child.name} url={child.url} variant="dropdown" />
+                        : <FileMenuContent id={child.id} name={child.name} fileKey={child.key} variant="dropdown" />
                     }
                   </DropdownMenu>
                 </div>
@@ -85,7 +87,7 @@ export default function DriveContent() {
               {
                 child.type === "directory"
                   ? <DirectoryMenuContent id={child.id} name={child.name} variant="context" />
-                  : <FileMenuContent id={child.id} name={child.name} url={child.url} variant="context" />
+                  : <FileMenuContent id={child.id} name={child.name} fileKey={child.key} variant="context" />
               }
             </ContextMenu>
           ))}
@@ -107,7 +109,7 @@ export default function DriveContent() {
                       if (child.type === "directory") {
                         navigate(`/drive/${child.id}`)
                       } else if (child.type === "file") {
-                        window.open(child.url)
+                        window.open(getFileURL(child.key))
                       }
                     }}
                   >
@@ -133,7 +135,7 @@ export default function DriveContent() {
                         {
                           child.type === "directory"
                             ? <DirectoryMenuContent id={child.id} name={child.name} variant="dropdown" />
-                            : <FileMenuContent id={child.id} name={child.name} url={child.url} variant="dropdown" />
+                            : <FileMenuContent id={child.id} name={child.name} fileKey={child.key} variant="dropdown" />
                         }
                       </DropdownMenu>
                     </div>
@@ -142,7 +144,7 @@ export default function DriveContent() {
                 {
                   child.type === "directory"
                     ? <DirectoryMenuContent id={child.id} name={child.name} variant="context" />
-                    : <FileMenuContent id={child.id} name={child.name} url={child.url} variant="context" />
+                    : <FileMenuContent id={child.id} name={child.name} fileKey={child.key} variant="context" />
                 }
               </ContextMenu>
             ))}
