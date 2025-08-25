@@ -19,5 +19,10 @@ Minimal google drive clone
 - [x] Add file download
 - [x] Toast file delete
 - [x] Add recursive directory delete
-- [ ] Add filesize file and created date
-- [ ] Add auth
+- [x] Add filesize file and created date
+- [x] Add permissions
+- [x] Migrate to trpc
+- [ ] finish  auth
+- [ ] Fix download file, copy link, follow links
+- [ ] Done !!!
+

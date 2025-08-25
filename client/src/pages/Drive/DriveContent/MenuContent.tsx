@@ -1,27 +1,27 @@
+import { useState } from "react"
+import { toast } from "sonner"
+import { Download, Edit, Trash2, Link } from "lucide-react"
+
 import { Button } from "@/components/ui/button"
 import { ContextMenuContent, ContextMenuItem } from "@/components/ui/context-menu"
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 
-import { Download, Edit, Trash2, Link } from "lucide-react"
-import { useState } from "react"
-import { useChildren } from "@/hooks/useChildren"
 import { DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu"
-import { getFileURL } from "@/utils"
-import { toast } from "sonner"
+import { useChildren } from "@/hooks/useChildren"
+
 
 type FileMenuContentProps = {
-  id: number,
+  id: string,
   name: string,
-  fileKey: string,
+  type: "directory" | "file",
   variant: "context" | "dropdown"
 }
 
-export function FileMenuContent(props: FileMenuContentProps) {
-  const { id, name, fileKey, variant } = props;
+export function DriveItemMenuContent(props: FileMenuContentProps) {
+  const { id, name, type, variant } = props;
   const [dialogOpen, setDialogOpen] = useState(false);
-
-  const { renameFile, deleteFile } = useChildren();
+  const { deleteDirectory, deleteFile } = useChildren();
 
   let ContentComponent, ItemComponent;
   if (variant === "context") {
@@ -32,6 +32,16 @@ export function FileMenuContent(props: FileMenuContentProps) {
     ItemComponent = DropdownMenuItem;
   }
 
+  async function deleteItem() {
+    const deleteFn = type === "directory" ? deleteDirectory : deleteFile;
+    toast.promise(async () => deleteFn({ id }), {
+      loading: 'deleting...',
+      success: 'deleted successfully!',
+      error: 'error occurred while deleting',
+    });
+  }
+
+  // @ts-ignore
   async function downloadFile(fileUrl: string, filename: string) {
     const response = await fetch(fileUrl);
     const blob = await response.blob();
@@ -49,11 +59,11 @@ export function FileMenuContent(props: FileMenuContentProps) {
   return (
     <>
       <ContentComponent>
-        <ItemComponent onSelect={() => downloadFile(getFileURL(fileKey), name)}>
+        <ItemComponent onSelect={() => { }}>
           <Download className="w-4 h-4 mr-2" />
           Download
         </ItemComponent>
-        <ItemComponent onSelect={() => navigator.clipboard.writeText(getFileURL(fileKey))}>
+        <ItemComponent onSelect={() => { }}>
           <Link className="w-4 h-4 mr-2" />
           Copy link
         </ItemComponent>
@@ -61,13 +71,7 @@ export function FileMenuContent(props: FileMenuContentProps) {
           <Edit className="w-4 h-4 mr-2" />
           Rename
         </ItemComponent>
-        <ItemComponent className="text-destructive" onSelect={() => {
-          toast.promise(async () => deleteFile({ id, key: fileKey }), {
-            loading: `deleting ${name}...`,
-            success: 'deleted successfully!',
-            error: `error occurred while deleting ${name}`,
-          });
-        }}>
+        <ItemComponent className="text-destructive" onSelect={deleteItem}>
           <Trash2 className="w-4 h-4 mr-2" />
           Delete
         </ItemComponent>
@@ -76,76 +80,29 @@ export function FileMenuContent(props: FileMenuContentProps) {
       <RenameDialog
         id={id}
         name={name}
+        type={type}
         dialogOpen={dialogOpen}
         setDialogOpen={setDialogOpen}
-        renameFn={renameFile}
-      />
-    </>
-  )
-}
-
-type DirectoryMenuContentProps = {
-  id: string,
-  name: string,
-  variant: "context" | "dropdown"
-}
-
-export function DirectoryMenuContent(props: DirectoryMenuContentProps) {
-  const { id, name, variant } = props;
-
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const { deleteDirectory, renameDirectory } = useChildren();
-
-  let ContentComponent, ItemComponent;
-  if (variant === "context") {
-    ContentComponent = ContextMenuContent;
-    ItemComponent = ContextMenuItem;
-  } else {
-    ContentComponent = DropdownMenuContent;
-    ItemComponent = DropdownMenuItem;
-  }
-
-  return (
-    <>
-      <ContentComponent>
-        <ItemComponent onSelect={() => navigator.clipboard.writeText(
-          new URL(id, window.location.href).toString()
-        )}>
-          <Link className="w-4 h-4 mr-2" />
-          Copy link
-        </ItemComponent>
-        <ItemComponent onSelect={() => setDialogOpen(true)}>
-          <Edit className="w-4 h-4 mr-2" />
-          Rename
-        </ItemComponent>
-        <ItemComponent className="text-destructive" onSelect={() => deleteDirectory(id)}>
-          <Trash2 className="w-4 h-4 mr-2" />
-          Delete
-        </ItemComponent>
-      </ContentComponent>
-
-      <RenameDialog
-        id={id}
-        name={name}
-        dialogOpen={dialogOpen}
-        setDialogOpen={setDialogOpen}
-        renameFn={renameDirectory}
       />
     </>
   )
 }
 
 type RenameDialogProps = {
-  id: string | number,
+  id: string,
   name: string,
+  type: "directory" | "file",
   dialogOpen: boolean,
   setDialogOpen: (open: boolean) => void,
-  renameFn: any
 }
 
 function RenameDialog(props: RenameDialogProps) {
-  const { id, name, dialogOpen, setDialogOpen, renameFn } = props;
-  const [newFolderName, setNewFolderName] = useState(name);
+  const { id, name, type, dialogOpen, setDialogOpen } = props;
+  const [newName, setNewName] = useState(name);
+  const { renameDirectory, renameFile } = useChildren();
+
+  const renameFn = type === "directory" ? renameDirectory : renameFile;
+
   return (
     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
       <DialogContent>
@@ -154,12 +111,16 @@ function RenameDialog(props: RenameDialogProps) {
         </DialogHeader>
         <form className="space-y-4" onSubmit={(e) => {
           e.preventDefault()
-          renameFn({ id, name: newFolderName })
+          toast.promise(async () => renameFn({ id, newName }), {
+            loading: 'renaming...',
+            success: 'renamed successfully!',
+            error: 'error occurred while renaming',
+          })
         }}>
           <div>
             <Input
-              value={newFolderName}
-              onChange={(e) => setNewFolderName(e.target.value)}
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
               placeholder=""
             />
           </div>

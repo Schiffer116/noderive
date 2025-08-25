@@ -1,35 +1,33 @@
 import { useState } from "react"
-import { useParams, type LoaderFunctionArgs } from "react-router-dom";
+import { redirect, type LoaderFunctionArgs } from "react-router-dom";
 
 import Header from "@/pages/Drive/Header"
 import Breadcrumbs from "@/pages/Drive/Breadcrumbs"
 import DriveContent from "@/pages/Drive/DriveContent"
 import { DriveContext, type DriveContextType, type ViewMode } from "@/context/DriveContext";
-import { fetchChildren, fetchPath } from "@/api";
 import { Toaster } from "@/components/ui/sonner";
 
-export async function driveLoader({ params }: LoaderFunctionArgs) {
-  const [children, path] = await Promise.all([
-    fetchChildren(params.id!),
-    fetchPath(params.id!),
-  ]);
+import { trpcClient } from "@/utils/trpc";
 
-  if (path.length == 0) {
-    throw new Error("The requested URL was not found on this server. That’s all we know.")
+export async function driveLoader({ params }: LoaderFunctionArgs) {
+  let folderId = params.id;
+  if (folderId === undefined) {
+    const root = await trpcClient.directory.getRoot.query();
+    return redirect(`/drive/${root.id}`)
   }
+
+  const [children, path] = await Promise.all([
+    trpcClient.directory.getChildren.query({ id: folderId }),
+    trpcClient.directory.getPath.query({ id: folderId }),
+  ]);
 
   return { children, path }
 }
 
 
 export default function Drive() {
-  const { id } = useParams<{ id: string }>();
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [searchQuery, setSearchQuery] = useState("");
-
-  if (!id) {
-    return "The requested URL was not found on this server. That’s all we know."
-  }
 
   const contextValue: DriveContextType = {
     viewMode,

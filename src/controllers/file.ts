@@ -1,46 +1,65 @@
-import { Router } from 'express';
 import { eq } from 'drizzle-orm';
+import z from 'zod';
+import { TRPCError } from '@trpc/server';
 
-import db from '../db/db.js';
 import { file } from '../db/schema.js';
 import { utapi } from '../controllers/uploadthing.js';
+import { protectedProcedure, router } from '../trpc.js';
 
-const router = Router();
+const fileOwnerProcedure = protectedProcedure
+  .input(z.object({ id: z.uuid() }))
+  .use(async ({ input, ctx, next }) => {
+    const { id } = input;
 
-router.get('/file/:directoryUUID', async (req, res) => {
-  const uuid = req.params.directoryUUID
-  const files = await db.select({
-      id: file.id,
-      name: file.name,
-      key: file.key,
-      size: file.size,
-      createdAt: file.createdAt,
-    })
-    .from(file)
-    .where(eq(file.parent, uuid));
+    const fileRecord = await ctx.db.query.file.findFirst({
+      columns: {
+        id: true,
+        key: true,
+        ownerId: true,
+        name: true,
+      },
+      where: eq(file.id, id)
+    });
 
-  res.json(files);
+    if (!fileRecord) {
+      throw new TRPCError({ code: 'NOT_FOUND', message: 'File not found' });
+    }
+    if (fileRecord.ownerId !== ctx.userId) {
+      throw new TRPCError({ code: 'FORBIDDEN', message: 'Forbidden' });
+    }
+
+    return next({
+      ctx: {
+        ...ctx,
+        file: fileRecord,
+      },
+    });
+  })
+
+const fileRouter = router({
+  rename: fileOwnerProcedure
+    .input(z.object({ newName: z.string() }))
+    .mutation(async ({ input, ctx }) => {
+      const { id, newName } = input;
+      if (ctx.file.name === newName) {
+        return { message: 'File name not changed' };
+      }
+
+      await ctx.db.update(file).set({ name: newName }).where(eq(file.id, id));
+      return { message: 'File renamed' };
+    }),
+
+  delete: fileOwnerProcedure
+    .mutation(async ({ ctx }) => {
+      const { id, key } = ctx.file;
+      const { success } = await utapi.deleteFiles(key);
+      if (!success) {
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Internal server error' });
+      }
+
+      ctx.db.delete(file).where(eq(file.id, id));
+      return { message: 'File deleted' };
+    }),
 });
 
-router.patch("/file", async (req, res) => {
-  try {
-    const { id, name } = req.body;
-    await db.update(file).set({ name }).where(eq(file.id, id));
-    res.status(200).json({ message: 'File renamed' });
-  } catch (e: any) {
-    res.status(400).json({ error: e.message });
-  }
-});
-
-router.delete("/file", async (req, res) => {
-  try {
-    const { id, key } = req.body;
-    await db.delete(file).where(eq(file.id, id));
-    await utapi.deleteFiles(key);
-    res.status(200).json({ message: 'File deleted' });
-  } catch (e: any) {
-    res.status(400).json({ error: e.message });
-  }
-});
-
-export default router;
+export default fileRouter;

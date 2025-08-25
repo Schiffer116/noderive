@@ -1,43 +1,32 @@
 import {
   uuid,
   pgTable,
-  serial,
   text,
   integer,
   timestamp,
   type AnyPgColumn,
 } from 'drizzle-orm/pg-core';
 
-export const account = pgTable('account', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
+export const account = pgTable("account", {
+  id: text().primaryKey(),
+  username: text().notNull(),
 });
 
-export const directory = pgTable('directory', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  name: text('name').notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  parent: uuid('parent')
-    .references((): AnyPgColumn => directory.id, { onDelete: 'cascade' }),
+export const directory = pgTable("directory", {
+  id: uuid().defaultRandom().primaryKey(),
+  name: text().notNull(),
+  createdAt: timestamp().notNull().defaultNow(),
+  ownerId: text().notNull().references(() => account.id),
+  parentId: uuid().references((): AnyPgColumn => directory.id, { onDelete: "cascade" }),
 });
 
-export const file = pgTable('file', {
-  id: serial('id').primaryKey(),
-  name: text('name').notNull(),
-  key: text('key').notNull(),
-  size: integer('size').notNull(),
-  createdAt: timestamp('created_at').notNull().defaultNow(),
-  parent: uuid('parent')
-    .notNull()
-    .references(() => directory.id, { onDelete: 'cascade' }),
+export const file = pgTable("file", {
+  id: uuid().defaultRandom().primaryKey(),
+  name: text().notNull(),
+  key: text().notNull(),
+  size: integer().notNull(),
+  createdAt: timestamp().notNull().defaultNow(),
+  ownerId: text().notNull().references(() => account.id),
+  parentId: uuid().notNull().references(() => directory.id, { onDelete: "cascade" }),
 });
 
-export const drive = pgTable('drive', {
-  id: serial('id').primaryKey(),
-  root: uuid('root')
-    .notNull()
-    .references(() => directory.id, { onDelete: 'cascade' }),
-  owner: integer('owner')
-    .notNull()
-    .references(() => account.id, { onDelete: 'cascade' }),
-});

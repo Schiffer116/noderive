@@ -1,36 +1,37 @@
-import { Plus, FolderPlus, Settings, HelpCircle, LogOut, Upload } from "lucide-react"
+import { Plus, FolderPlus, Upload } from "lucide-react"
 import { useParams } from "react-router-dom"
 import { useState, useRef, useEffect, useCallback } from "react";
+import { Grid3X3, List, Search } from "lucide-react"
 import { generateReactHelpers } from "@uploadthing/react";
+import { toast } from "sonner"
+import { UserButton } from "@clerk/clerk-react";
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Grid3X3, List, Search } from "lucide-react"
 import { Label } from "@/components/ui/label"
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { toast } from "sonner"
 
 import { useDriveContext } from "@/context/DriveContext";
-import { useChildren } from "@/hooks/useChildren"
 import { useQueryClient } from "@tanstack/react-query";
 import { parseFileSize } from "@/utils";
+import { useChildren } from "@/hooks/useChildren";
 
 export default function Header() {
   const queryClient = useQueryClient();
-  const parent = useParams<{ id: string }>().id!;
-  const [newFolderName, setNewFolderName] = useState("")
+  const parentId = useParams<{ id: string }>().id!;
+  const [newDirectoryName, setNewDirectoryName] = useState("Untitled directory")
   const [newFolderDialogOpen, setNewFolderDialogOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [maxFileCount, setMaxFileCount] = useState(1);
   const [rawMaxFileSize, setRawMaxFileSize] = useState("0B");
+
+  const { createDirectory } = useChildren();
 
   const { useUploadThing } = generateReactHelpers({ url: "/api/uploadthing" });
   const { startUpload, routeConfig } = useUploadThing("fileUploader", {
@@ -64,12 +65,12 @@ export default function Header() {
       }
     }
 
-    toast.promise(startUpload(Array.from(files), { parent }), {
+    toast.promise(startUpload(Array.from(files), { parentId }), {
       loading: 'uploading...',
       success: 'uploaded successfully!',
       error: 'error occurred while uploading',
     });
-  }, [maxFileCount, rawMaxFileSize, parent])
+  }, [maxFileCount, rawMaxFileSize, parentId])
 
   const {
     searchQuery,
@@ -77,7 +78,6 @@ export default function Header() {
     viewMode,
     setViewMode,
   } = useDriveContext()
-  const { createDirectory } = useChildren();
 
   return (
     <header className="border-b px-6 py-3 flex items-center gap-4">
@@ -109,10 +109,10 @@ export default function Header() {
           </DropdownMenuItem>
           {
             routeConfig != undefined &&
-              <DropdownMenuItem onSelect={() => { fileInputRef.current?.click() }}>
-                <Upload className="w-4 h-4 mr-2" />
-                File upload
-              </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => { fileInputRef.current?.click() }}>
+              <Upload className="w-4 h-4 mr-2" />
+              File upload
+            </DropdownMenuItem>
           }
         </DropdownMenuContent>
       </DropdownMenu>
@@ -123,16 +123,22 @@ export default function Header() {
             <DialogTitle>Create new folder</DialogTitle>
           </DialogHeader>
           <form className="space-y-4" onSubmit={(e) => {
-            e.preventDefault()
-            createDirectory({ name: newFolderName, parent })}
-          }>
+            e.preventDefault();
+            toast.promise(
+              async () => createDirectory({ id: parentId, name: newDirectoryName }),
+              {
+                loading: 'creating...',
+                success: 'created successfully!',
+                error: 'error occurred while creating',
+              }
+            )
+          }}>
             <div>
               <Label htmlFor="folder-name" className="mb-2">Folder name</Label>
               <Input
                 id="folder-name"
-                value={newFolderName}
-                onChange={(e) => setNewFolderName(e.target.value)}
-                placeholder="Untitled folder"
+                value={newDirectoryName}
+                onChange={(e) => setNewDirectoryName(e.target.value)}
               />
             </div>
             <DialogFooter>
@@ -164,6 +170,9 @@ export default function Header() {
           {viewMode === "grid" ? <List className="w-4 h-4" /> : <Grid3X3 className="w-4 h-4" />}
         </Button>
 
+        <UserButton />
+
+        {/*
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon">
@@ -189,6 +198,7 @@ export default function Header() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        */}
       </div>
     </header>
   )
