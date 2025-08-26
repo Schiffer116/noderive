@@ -18,12 +18,10 @@ import { Label } from "@/components/ui/label"
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 import { useDriveContext } from "@/context/DriveContext";
-import { useQueryClient } from "@tanstack/react-query";
 import { parseFileSize } from "@/utils";
 import { useChildren } from "@/hooks/useChildren";
 
 export default function Header() {
-  const queryClient = useQueryClient();
   const parentId = useParams<{ id: string }>().id!;
   const [newDirectoryName, setNewDirectoryName] = useState("Untitled directory")
   const [newFolderDialogOpen, setNewFolderDialogOpen] = useState(false)
@@ -31,13 +29,11 @@ export default function Header() {
   const [maxFileCount, setMaxFileCount] = useState(1);
   const [rawMaxFileSize, setRawMaxFileSize] = useState("0B");
 
-  const { createDirectory } = useChildren();
+  const { createDirectory, invalidateChildren } = useChildren();
 
   const { useUploadThing } = generateReactHelpers({ url: "/api/uploadthing" });
   const { startUpload, routeConfig } = useUploadThing("fileUploader", {
-    onClientUploadComplete: _ => {
-      queryClient.invalidateQueries({ queryKey: ["children"] })
-    }
+    onClientUploadComplete: invalidateChildren
   });
 
   useEffect(() => {

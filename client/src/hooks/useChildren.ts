@@ -1,25 +1,37 @@
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { driveLoader, } from "@/pages/Drive";
-import { trpc } from "@/utils/trpc";
+import { trpc, queryClient } from "@/utils/trpc";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import type { TRPCMutationOptions } from "@trpc/tanstack-react-query";
 
 export function useChildren() {
   const id = useParams<{ id: string }>().id!;
   const { children: initialData } = useLoaderData<typeof driveLoader>();
+
   const { data } = useQuery(trpc.directory.getChildren.queryOptions(
     { id },
-    { initialData }
-  ));
+    { initialData },
+  ))
 
+  const childrenKey = trpc.directory.getChildren.queryKey();
+
+  const generateMutationFn = (mutationOptions: TRPCMutationOptions<any>) => {
+    return useMutation(mutationOptions({
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: childrenKey })
+      }
+    })).mutateAsync
+  }
 
   return {
     children: data,
-    createDirectory: useMutation(trpc.directory.createChild.mutationOptions()).mutateAsync,
-    deleteDirectory: useMutation(trpc.directory.delete.mutationOptions()).mutateAsync,
-    renameDirectory: useMutation(trpc.directory.rename.mutationOptions()).mutateAsync,
+    invalidateChildren: () => queryClient.invalidateQueries({ queryKey: childrenKey }),
+    createDirectory: generateMutationFn(trpc.directory.createChild.mutationOptions),
+    deleteDirectory: generateMutationFn(trpc.directory.delete.mutationOptions),
+    renameDirectory: generateMutationFn(trpc.directory.rename.mutationOptions),
 
-    renameFile: useMutation(trpc.file.rename.mutationOptions()).mutateAsync,
-    deleteFile: useMutation(trpc.file.delete.mutationOptions()).mutateAsync,
+    renameFile: generateMutationFn(trpc.file.rename.mutationOptions),
+    deleteFile: generateMutationFn(trpc.file.delete.mutationOptions),
   };
 }
