@@ -6,21 +6,22 @@
 
 ## ✨ Features
 - 📂 Browse directories & open files
-- ➕ Create, rename, delete, and share directories
+- ➕ Create, rename, delete directories
 - 📝 Rename, delete, download, and batch-upload files
 - 🔄 Recursive directory deletion
 - ⚡ File upload & copy link support
-- 🔐 Authentication & permissions
+- 🔐 Authentication & ownership
 - 🎨 Responsive UI with right-click menus, breadcrumbs, and search
 - 🔔 Toast notifications for file actions
 - 🚀 Powered by TRPC + React Query for type-safe fetching and caching
 
 ## 🛠️ Tech Stack
-- **React 18** + **React Router**
+- **React 19** + **React Router**
 - **tRPC** for API calls
 - **TanStack Query (React Query)** for caching & invalidation
 - **TailwindCSS** for styling
--  **Uploadthing** for file uploads
+- **Uploadthing** for file uploads
+- **Neon** serverless database
 
 ## 🚦 Running locally
 
@@ -31,7 +32,10 @@ git clone https://github.com/Schiffer116/noderive.git
 cd noderive
 
 # Install dependencies
-npm install
+npm install && npm --prefix client install
 
-# Start dev server
-npm run build && npm start
+# Build
+npm run build
+
+# Start the server
+npm start
