@@ -11,7 +11,7 @@ export function useChildren() {
 
   const queryOptions = trpc.directory.getChildren.queryOptions(
     { id },
-    { placeholderData: initialData },
+    { initialData },
   );
   const { data } = useQuery(queryOptions);
 
