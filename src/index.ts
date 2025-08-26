@@ -33,7 +33,7 @@ app.use(clerkMiddleware())
 app.use(express.static(distPath));
 
 app.use("/api/uploadthing", createRouteHandler({ router: uploadRouter }));
-app.use("/api/", clerkRouter);
+app.use("/api", clerkRouter);
 
 const appRouter = router({
   file: fileRouter,
