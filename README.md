@@ -22,7 +22,7 @@ Minimal google drive clone
 - [x] Add filesize file and created date
 - [x] Add permissions
 - [x] Migrate to trpc
-- [ ] finish  auth
-- [ ] Fix download file, copy link, follow links
+- [ ] finish auth
+- [ ] Fix uploadfile refetch hook, download file, copy link, follow links
 - [ ] Done !!!
 
