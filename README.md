@@ -23,6 +23,10 @@ Minimal google drive clone
 - [x] Add permissions
 - [x] Migrate to trpc
 - [x] finish auth
-- [ ] Fix uploadfile, download file, copy link, follow links
+- [x] Fix uploadfile
+- [ ] Fix download file
+- [ ] Fix copy link
+- [ ] Fix follow links
+- [ ] Fix navigation lag
 - [ ] Done !!!
 

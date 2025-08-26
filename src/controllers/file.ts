@@ -52,12 +52,19 @@ const fileRouter = router({
   delete: fileOwnerProcedure
     .mutation(async ({ ctx }) => {
       const { id, key } = ctx.file;
-      const { success } = await utapi.deleteFiles(key);
-      if (!success) {
+      try {
+        await ctx.db.transaction(async (tx) => {
+          const [{ success }] = await Promise.all([
+            utapi.deleteFiles(key),
+            ctx.db.delete(file).where(eq(file.id, id)),
+          ]);
+
+          if (!success) tx.rollback();
+        });
+      } catch (e: any) {
         throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Internal server error' });
       }
 
-      ctx.db.delete(file).where(eq(file.id, id));
       return { message: 'File deleted' };
     }),
 });
