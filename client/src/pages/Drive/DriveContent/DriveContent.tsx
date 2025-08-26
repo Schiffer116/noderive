@@ -1,4 +1,4 @@
-import { FileText, Folder, MoreVertical } from "lucide-react"
+import { Archive, FileText, Folder, ImageIcon, MoreVertical, Music, Video } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { useCallback, useMemo } from "react"
 
@@ -13,14 +13,43 @@ import { DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu"
 
 import { formatBytes, getFileURL } from "@/utils"
 
-function getFileIcon(type: string) {
-  switch (type) {
-    case "directory":
-      return <Folder className="w-8 h-8 text-blue-500" />
-    case "file":
-      return <FileText className="w-8 h-8 text-gray-500" />
+// function getFileIcon(type: string) {
+//   switch (type) {
+//     case "directory":
+//       return <Folder className="w-8 h-8 text-blue-500" />
+//     case "file":
+//       return <FileText className="w-8 h-8 text-gray-500" />
+//   }
+// }
+
+const getFileIcon = (filename: string, type: "directory" | "file") => {
+  if (type === "directory") {
+    return <Folder className="w-8 h-8 text-blue-500" />;
   }
-}
+
+  const ext = filename.split(".").pop()?.toLowerCase();
+
+  switch (true) {
+    case ["txt", "md", "pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx"].includes(ext!):
+      return <FileText className="w-8 h-8 text-red-500" />;
+
+    case ["jpg", "jpeg", "png", "gif", "bmp", "svg", "webp"].includes(ext!):
+      return <ImageIcon className="w-8 h-8 text-green-500" />;
+
+    case ["mp4", "mkv", "mov", "avi", "webm"].includes(ext!):
+      return <Video className="w-8 h-8 text-purple-500" />;
+
+    case ["mp3", "wav", "ogg", "flac", "aac"].includes(ext!):
+      return <Music className="w-8 h-8 text-orange-500" />;
+
+    case ["zip", "rar", "7z", "tar", "gz"].includes(ext!):
+      return <Archive className="w-8 h-8 text-yellow-500" />;
+
+    default:
+      return <FileText className="w-8 h-8 text-gray-500" />;
+  }
+};
+
 
 export default function DriveContent() {
   const navigate = useNavigate();
@@ -60,7 +89,7 @@ export default function DriveContent() {
                 >
                   <div className="flex flex-col items-center text-center space-y-2">
                     <div className="relative">
-                      {getFileIcon(child.type)}
+                      {getFileIcon(child.name, child.type)}
                     </div>
                     <div className="w-full">
                       <p className="text-sm font-medium truncate" title={child.name}>
@@ -116,7 +145,7 @@ export default function DriveContent() {
                   onDoubleClick={handleDoubleClick(child)}
                 >
                   <div className="col-span-6 flex items-center gap-3">
-                    {getFileIcon(child.type)}
+                    {getFileIcon(child.name, child.type)}
                     <span className="font-medium">{child.name}</span>
                   </div>
                   <div className="col-span-2 flex items-center text-sm text-muted-foreground">
