@@ -9,24 +9,26 @@ export function useChildren() {
   const id = useParams<{ id: string }>().id!;
   const { children: initialData } = useLoaderData<typeof driveLoader>();
 
-  const { data } = useQuery(trpc.directory.getChildren.queryOptions(
+  const queryOptions = trpc.directory.getChildren.queryOptions(
     { id },
-    { initialData },
-  ))
+    { placeholderData: initialData },
+  );
+  const { data } = useQuery(queryOptions);
 
-  const childrenKey = trpc.directory.getChildren.queryKey();
+  const invalidateChildren = async () => {
+    const key = trpc.directory.getChildren.queryKey();
+    console.log(key);
+    return await queryClient.invalidateQueries({ queryKey: key })
+  }
 
   const generateMutationFn = (mutationOptions: TRPCMutationOptions<any>) => {
-    return useMutation(mutationOptions({
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: childrenKey })
-      }
-    })).mutateAsync
+    return useMutation(mutationOptions({ onSuccess: async () => await invalidateChildren() }))
+      .mutateAsync;
   }
 
   return {
     children: data,
-    invalidateChildren: () => queryClient.invalidateQueries({ queryKey: childrenKey }),
+    invalidateChildren,
     createDirectory: generateMutationFn(trpc.directory.createChild.mutationOptions),
     deleteDirectory: generateMutationFn(trpc.directory.delete.mutationOptions),
     renameDirectory: generateMutationFn(trpc.directory.rename.mutationOptions),

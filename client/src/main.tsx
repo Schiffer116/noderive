@@ -1,21 +1,14 @@
 import './index.css'
 import { createRoot } from 'react-dom/client'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import { MutationCache, QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { ClerkProvider } from '@clerk/clerk-react'
 
 import ErrorPage from '@/components/ErrorPage'
 import Drive, { driveLoader } from '@/pages/Drive'
+import { queryClient } from '@/utils/trpc'
 import Homepage from './pages/Home'
 import { CLERK_PUBLISHABLE_KEY } from './constants'
-
-const queryClient = new QueryClient({
-  mutationCache: new MutationCache({
-    onSuccess: () => {
-      queryClient.invalidateQueries()
-    },
-  }),
-})
 
 const router = createBrowserRouter([
   {
