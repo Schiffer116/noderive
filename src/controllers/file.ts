@@ -37,6 +37,12 @@ const fileOwnerProcedure = protectedProcedure
   })
 
 const fileRouter = router({
+  getUrl: fileOwnerProcedure
+    .query(async ({ ctx }) => {
+      const { key } = ctx.file;
+      return `https://acvyswhoqd.ufs.sh/f/${key}`;
+    }),
+
   rename: fileOwnerProcedure
     .input(z.object({ newName: z.string() }))
     .mutation(async ({ input, ctx }) => {

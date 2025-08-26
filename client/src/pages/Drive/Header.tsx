@@ -1,4 +1,4 @@
-import { Plus, FolderPlus, Upload } from "lucide-react"
+import { Plus } from "lucide-react"
 import { useParams } from "react-router-dom"
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Grid3X3, List, Search } from "lucide-react"
@@ -6,12 +6,7 @@ import { generateReactHelpers } from "@uploadthing/react";
 import { toast } from "sonner"
 import { UserButton } from "@clerk/clerk-react";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuTrigger, } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -19,7 +14,8 @@ import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogT
 
 import { useDriveContext } from "@/context/DriveContext";
 import { parseFileSize } from "@/utils";
-import { useChildren } from "@/hooks/useChildren";
+import { queryClient, trpc, trpcClient } from "@/utils/trpc";
+import { NewItemMenuContent } from "@/pages/Drive/NewMenuContent";
 
 export default function Header() {
   const parentId = useParams<{ id: string }>().id!;
@@ -29,11 +25,12 @@ export default function Header() {
   const [maxFileCount, setMaxFileCount] = useState(1);
   const [rawMaxFileSize, setRawMaxFileSize] = useState("0B");
 
-  const { createDirectory, invalidateChildren } = useChildren();
-
   const { useUploadThing } = generateReactHelpers({ url: "/api/uploadthing" });
   const { startUpload, routeConfig } = useUploadThing("fileUploader", {
-    onClientUploadComplete: invalidateChildren
+    onClientUploadComplete: () => {
+      const key = trpc.directory.getChildren.queryKey();
+      queryClient.invalidateQueries({ queryKey: key })
+    }
   });
 
   useEffect(() => {
@@ -98,19 +95,7 @@ export default function Header() {
             New
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="w-48">
-          <DropdownMenuItem onSelect={() => setNewFolderDialogOpen(true)}>
-            <FolderPlus className="w-4 h-4 mr-2" />
-            New folder
-          </DropdownMenuItem>
-          {
-            routeConfig != undefined &&
-            <DropdownMenuItem onSelect={() => { fileInputRef.current?.click() }}>
-              <Upload className="w-4 h-4 mr-2" />
-              File upload
-            </DropdownMenuItem>
-          }
-        </DropdownMenuContent>
+        <NewItemMenuContent variant="dropdown" fileInputRef={fileInputRef} />
       </DropdownMenu>
 
       <Dialog open={newFolderDialogOpen} onOpenChange={setNewFolderDialogOpen}>
@@ -121,7 +106,11 @@ export default function Header() {
           <form className="space-y-4" onSubmit={(e) => {
             e.preventDefault();
             toast.promise(
-              async () => createDirectory({ id: parentId, name: newDirectoryName }),
+              async () => {
+                await trpcClient.directory.createChild.mutate({ id: parentId, name: newDirectoryName });
+                const key = trpc.directory.getChildren.queryKey();
+                queryClient.invalidateQueries({ queryKey: key })
+              },
               {
                 loading: 'creating...',
                 success: 'created successfully!',
@@ -165,36 +154,7 @@ export default function Header() {
         <Button variant="ghost" size="icon" onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}>
           {viewMode === "grid" ? <List className="w-4 h-4" /> : <Grid3X3 className="w-4 h-4" />}
         </Button>
-
         <UserButton />
-
-        {/*
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Avatar className="w-8 h-8">
-                <AvatarImage src="/placeholder.svg?height=32&width=32" />
-                <AvatarFallback>JD</AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuItem>
-              <Settings className="w-4 h-4 mr-2" />
-              Settings
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <HelpCircle className="w-4 h-4 mr-2" />
-              Help
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        */}
       </div>
     </header>
   )

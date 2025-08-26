@@ -14,12 +14,13 @@ import { useChildren } from "@/hooks/useChildren"
 type FileMenuContentProps = {
   id: string,
   name: string,
+  url: string,
   type: "directory" | "file",
   variant: "context" | "dropdown"
 }
 
 export function DriveItemMenuContent(props: FileMenuContentProps) {
-  const { id, name, type, variant } = props;
+  const { id, name, url, type, variant } = props;
   const [dialogOpen, setDialogOpen] = useState(false);
   const { deleteDirectory, deleteFile } = useChildren();
 
@@ -41,14 +42,13 @@ export function DriveItemMenuContent(props: FileMenuContentProps) {
     });
   }
 
-  // @ts-ignore
-  async function downloadFile(fileUrl: string, filename: string) {
-    const response = await fetch(fileUrl);
+  async function downloadFile() {
+    const response = await fetch(url);
     const blob = await response.blob();
 
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
-    link.download = filename;
+    link.download = name;
 
     document.body.appendChild(link);
     link.click();
@@ -59,11 +59,14 @@ export function DriveItemMenuContent(props: FileMenuContentProps) {
   return (
     <>
       <ContentComponent>
-        <ItemComponent onSelect={() => { }}>
-          <Download className="w-4 h-4 mr-2" />
-          Download
-        </ItemComponent>
-        <ItemComponent onSelect={() => { }}>
+        {
+          type === "file" &&
+          <ItemComponent onSelect={downloadFile}>
+            <Download className="w-4 h-4 mr-2" />
+            Download
+          </ItemComponent>
+        }
+        <ItemComponent onSelect={() => { navigator.clipboard.writeText(url) }}>
           <Link className="w-4 h-4 mr-2" />
           Copy link
         </ItemComponent>

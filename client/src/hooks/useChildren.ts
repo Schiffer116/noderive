@@ -1,23 +1,22 @@
 import { useLoaderData, useParams } from "react-router-dom";
 
-import { driveLoader, } from "@/pages/Drive";
 import { trpc, queryClient } from "@/utils/trpc";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import type { TRPCMutationOptions } from "@trpc/tanstack-react-query";
+import type { driveLoader } from "@/pages/Drive";
 
 export function useChildren() {
   const id = useParams<{ id: string }>().id!;
-  const { children: initialData } = useLoaderData<typeof driveLoader>();
+  const { children } = useLoaderData<typeof driveLoader>();
 
   const queryOptions = trpc.directory.getChildren.queryOptions(
     { id },
-    { initialData },
+    { initialData: children },
   );
   const { data } = useQuery(queryOptions);
 
   const invalidateChildren = async () => {
     const key = trpc.directory.getChildren.queryKey();
-    console.log(key);
     return await queryClient.invalidateQueries({ queryKey: key })
   }
 
@@ -28,7 +27,6 @@ export function useChildren() {
 
   return {
     children: data,
-    invalidateChildren,
     createDirectory: generateMutationFn(trpc.directory.createChild.mutationOptions),
     deleteDirectory: generateMutationFn(trpc.directory.delete.mutationOptions),
     renameDirectory: generateMutationFn(trpc.directory.rename.mutationOptions),

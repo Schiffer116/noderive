@@ -100,6 +100,7 @@ const directoryRouter = router({
         columns: {
           id: true,
           name: true,
+          key: true,
           size: true,
           createdAt: true,
         },

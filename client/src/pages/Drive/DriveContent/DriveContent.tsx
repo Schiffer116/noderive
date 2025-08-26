@@ -25,7 +25,6 @@ function getFileIcon(type: string) {
 export default function DriveContent() {
   const navigate = useNavigate();
   const { viewMode, searchQuery } = useDriveContext();
-
   const { children } = useChildren();
 
   const filteredChildren = useMemo(() => {
@@ -38,22 +37,26 @@ export default function DriveContent() {
     new Date(date).toLocaleDateString()
     , []);
 
+  const handleDoubleClick = useCallback((child: typeof children[number]) => {
+    return () => {
+      if (child.type === "directory") {
+        navigate(`/drive/${child.id}`)
+      } else if (child.type === "file") {
+        window.open(getFileURL(child.key))
+      }
+    }
+  }, []);
+
   return (
     <>
       {viewMode === "grid" ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div className="h-full w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 ">
           {filteredChildren.map((child) => (
             <ContextMenu key={child.id}>
-              <ContextMenuTrigger>
+              <ContextMenuTrigger className="h-min" >
                 <div
                   className="group p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors relative"
-                  onDoubleClick={() => {
-                    if (child.type === "directory") {
-                      navigate(`/drive/${child.id}`)
-                    } else if (child.type === "file") {
-                      // window.open(getFileURL(child.key))
-                    }
-                  }}
+                  onDoubleClick={handleDoubleClick(child)}
                 >
                   <div className="flex flex-col items-center text-center space-y-2">
                     <div className="relative">
@@ -77,11 +80,23 @@ export default function DriveContent() {
                         <MoreVertical className="w-3 h-3" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DriveItemMenuContent id={child.id} name={child.name} type={child.type} variant="dropdown" />
+                    <DriveItemMenuContent
+                      id={child.id}
+                      name={child.name}
+                      url={child.type === "directory" ? window.location.href : getFileURL(child.key)}
+                      type={child.type}
+                      variant="dropdown"
+                    />
                   </DropdownMenu>
                 </div>
               </ContextMenuTrigger>
-              <DriveItemMenuContent id={child.id} name={child.name} type={child.type} variant="context" />
+              <DriveItemMenuContent
+                id={child.id}
+                name={child.name}
+                type={child.type}
+                url={child.type === "directory" ? window.location.href : getFileURL(child.key)}
+                variant="context"
+              />
             </ContextMenu>
           ))}
         </div>
@@ -98,14 +113,7 @@ export default function DriveContent() {
               <ContextMenuTrigger>
                 <div
                   className="grid grid-cols-12 gap-4 px-4 py-2 hover:bg-muted/50 rounded-lg cursor-pointer group"
-                  onDoubleClick={() => {
-                    if (child.type === "directory") {
-                      navigate(`/drive/${child.id}`)
-                    } else if (child.type === "file") {
-                      // @ts-ignore
-                      window.open(getFileURL(child.key))
-                    }
-                  }}
+                  onDoubleClick={handleDoubleClick(child)}
                 >
                   <div className="col-span-6 flex items-center gap-3">
                     {getFileIcon(child.type)}
@@ -128,12 +136,23 @@ export default function DriveContent() {
                           <MoreVertical className="w-4 h-4" />
                         </Button>
                       </DropdownMenuTrigger>
-                      <DriveItemMenuContent id={child.id} name={child.name} type={child.type} variant="dropdown" />
+                      <DriveItemMenuContent
+                        id={child.id}
+                        name={child.name}
+                        url={child.type === "directory" ? window.location.href : getFileURL(child.key)}
+                        type={child.type}
+                        variant="dropdown"
+                      />
                     </DropdownMenu>
                   </div>
                 </div>
               </ContextMenuTrigger>
-              <DriveItemMenuContent id={child.id} name={child.name} type={child.type} variant="context" />
+              <DriveItemMenuContent
+                id={child.id}
+                name={child.name}
+                url={child.type === "directory" ? window.location.href : getFileURL(child.key)}
+                type={child.type} variant="context"
+              />
             </ContextMenu>
           ))}
         </div>

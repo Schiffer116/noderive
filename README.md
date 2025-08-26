@@ -24,9 +24,9 @@ Minimal google drive clone
 - [x] Migrate to trpc
 - [x] finish auth
 - [x] Fix uploadfile
-- [ ] Fix download file
-- [ ] Fix copy link
-- [ ] Fix follow links
-- [ ] Fix navigation lag
-- [ ] Done !!!
-
+- [x] Fix copy link
+- [x] Fix follow links
+- [x] Fix download file
+- [x] Add right click menu
+- [x] Fix navigation lag
+- [x] Done !!!

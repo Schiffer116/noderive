@@ -1,6 +1,6 @@
 import { Fragment } from "react";
 import { ChevronRight } from "lucide-react"
-import { useLoaderData, useNavigate } from "react-router-dom";
+import { Link, useLoaderData, useNavigate, useNavigation } from "react-router-dom";
 
 import {
   Breadcrumb,
@@ -11,10 +11,11 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb"
 
-import type { driveLoader } from "@/pages/Drive";
+import type { driveLoader } from "./Drive";
 
 export default function Breadcrumbs() {
   const navigate = useNavigate();
+  const navigation = useNavigation();
   const { path } = useLoaderData<typeof driveLoader>();
 
   return (
@@ -22,14 +23,10 @@ export default function Breadcrumbs() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink
-              href="#"
-              onClick={(e) => {
-                e.preventDefault()
-                navigate(`/drive/${path[0].id}`)
-              }}
-            >
-              {path[0].name}
+            <BreadcrumbLink asChild>
+              <Link to={`/drive/${path[0].id}`}>
+                {path[0].name}
+              </Link>
             </BreadcrumbLink>
           </BreadcrumbItem>
           {path.slice(1).map((folder, index) => (
@@ -55,6 +52,10 @@ export default function Breadcrumbs() {
               </BreadcrumbItem>
             </Fragment>
           ))}
+          {
+            navigation.state === 'loading' &&
+            <div className="w-5 h-5 border-2 border-gray-300 border-t-transparent rounded-full animate-spin"></div>
+          }
         </BreadcrumbList>
       </Breadcrumb>
     </div>

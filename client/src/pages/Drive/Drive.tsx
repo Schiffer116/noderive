@@ -8,6 +8,8 @@ import { DriveContext, type DriveContextType, type ViewMode } from "@/context/Dr
 import { Toaster } from "@/components/ui/sonner";
 
 import { trpcClient } from "@/utils/trpc";
+import { ContextMenu, ContextMenuTrigger } from "@/components/ui/context-menu";
+import { NewItemMenuContent } from "./NewMenuContent";
 
 export async function driveLoader({ params }: LoaderFunctionArgs) {
   let folderId = params.id;
@@ -42,8 +44,13 @@ export default function Drive() {
         <Toaster />
         <Header />
         <main className="flex-1 p-6">
-          <Breadcrumbs />
-          <DriveContent />
+          <ContextMenu>
+            <ContextMenuTrigger>
+              <Breadcrumbs />
+              <DriveContent />
+            </ContextMenuTrigger>
+            <NewItemMenuContent variant="context" />
+          </ContextMenu>
         </main>
       </div>
     </DriveContext.Provider>
