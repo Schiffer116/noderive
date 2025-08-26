@@ -12,7 +12,7 @@ const f = createUploadthing();
 export const uploadRouter = {
   fileUploader: f({
     blob: {
-      maxFileSize: "4MB",
+      maxFileSize: "32MB",
       maxFileCount: 5,
     },
   })
