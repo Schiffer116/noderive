@@ -79,7 +79,7 @@ export default function DriveContent() {
   return (
     <>
       {viewMode === "grid" ? (
-        <div className="h-full w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 ">
+        <div className="h-full w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 auto-rows-min content-start">
           {filteredChildren.map((child) => (
             <ContextMenu key={child.id}>
               <ContextMenuTrigger className="h-min" >
@@ -87,7 +87,7 @@ export default function DriveContent() {
                   className="group p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors relative"
                   onDoubleClick={handleDoubleClick(child)}
                 >
-                  <div className="flex flex-col items-center text-center space-y-2">
+                  <div className="flex flex-col items-center text-center space-y-1">
                     <div className="relative">
                       {getFileIcon(child.name, child.type)}
                     </div>
