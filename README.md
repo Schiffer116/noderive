@@ -1,6 +1,6 @@
 # 📂 Noderive
-![image fo noderive landing page](landing.png "Landing page")
-![image fo noderive main page](directory_view "Directory view")
+![image for noderive landing page](landing.png "Landing page")
+![image for noderive main page](directory_view.png "Directory view")
 *A minimal Google Drive clone built with React, TRPC, and TailwindCSS.*
 
 ## 🌐 Live Demo
